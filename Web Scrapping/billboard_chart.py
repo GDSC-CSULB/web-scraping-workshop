@@ -1,21 +1,16 @@
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
-billboard_url = "https://www.billboard.com/charts/hot-100/"
+URL = "https://www.billboard.com/charts/hot-100/"
+page = requests.get(URL)
 
-main_container_class = "chart-results-list"
-each_row_class = "o-chart-results-list-row-container"
+soup = BeautifulSoup(page.content, "html.parser")
+rows = soup.find_all("ul", {"class": "o-chart-results-list-row"})
 
-def extract_billboard(req, up_to):
-    songs = []
-    full_doc = req.find("div", {"class":main_container_class})
-    result = full_doc.find_all("div", {"class": each_row_class})
-    print(type(result))
+for row in rows:
+    list_items = row.find_all('li', recursive=False)
 
-    for r in result:
-        data = r.find("ul", {"class":"o-chart-results-list-row"})
-            
-    return songs
-
-req = requests.get(url=billboard_url, headers = {"User-Agent": "XY"} )
-dict_result = extract_billboard(BeautifulSoup(req.text, "html.parser"), up_to=100)
+    rank = list_items[0].find("span")
+    title = list_items[-1].find("h3")
+    artist = list_items[-1].find("span")
+    print(rank.text.strip(), title.text.strip(), artist.text.strip())
